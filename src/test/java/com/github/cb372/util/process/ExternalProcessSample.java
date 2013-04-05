@@ -3,6 +3,7 @@ package com.github.cb372.util.process;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 
 import static com.github.cb372.util.process.Logging.usingLogger;
@@ -17,9 +18,11 @@ public class ExternalProcessSample {
     private final Logger myErrorLogger = LoggerFactory.getLogger("myErrorLogger");
 
     public void example() throws IOException, InterruptedException {
-        ProcessBuilder pb = new ProcessBuilder("myscript.sh", "foo", "bar");
-
-        ExternalProcess process = ExternalProcessBuilder.fromProcessBuilder(pb)
+        // Use the DSL to build a process
+        ExternalProcess process = Command.parse("myscript.sh -a -b -c foo bar")
+                .withEnvVar("WIBBLE", "wobble")
+                .withEnvVar("FUNKY", "monkey")
+                .withWorkingDirectory(new File("/tmp"))
                 .processStdOut(gobble()
                         .withCharset("UTF-8")
                         .pipingToStdOut() // pipe all process output to our stdout/stderr
