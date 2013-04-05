@@ -1,5 +1,7 @@
-package com.github.cb372.util.process;
+package com.github.cb372.util.sample;
 
+import com.github.cb372.util.process.Command;
+import com.github.cb372.util.process.ExternalProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

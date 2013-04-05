@@ -1,4 +1,4 @@
-package com.github.cb372.util.process;
+package com.github.cb372.util.sample;
 
 /**
 * Author: chris
