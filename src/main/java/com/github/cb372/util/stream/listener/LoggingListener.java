@@ -4,12 +4,12 @@ import com.github.cb372.util.stream.StreamListener;
 import org.slf4j.Logger;
 
 /**
- * A stream listener that logs every line of output.
+ * A stream listener that logs every line of output to a supplied Slf4j logger.
  *
  * Author: chris
  * Created: 4/5/13
  */
-public class LoggingListener implements StreamListener {
+public final class LoggingListener extends StreamLineListener {
     public enum LogLevel {
         Trace, Debug, Info, Warn, Error
     }
@@ -22,10 +22,6 @@ public class LoggingListener implements StreamListener {
         this.logger = logger;
         this.level = level;
         this.prefix = prefix;
-    }
-
-    @Override
-    public void onChar(char c) {
     }
 
     @Override
@@ -50,4 +46,47 @@ public class LoggingListener implements StreamListener {
         }
     }
 
+    public static class Builder {
+        private final Logger logger;
+        private LogLevel level = LogLevel.Info;
+        private String prefix = "";
+
+        public Builder(Logger logger) {
+            this.logger = logger;
+        }
+
+        public Builder atLogLevel(LogLevel level) {
+            this.level = level;
+            return this;
+        }
+
+        public Builder withPrefix(String prefix) {
+            this.prefix = prefix;
+            return this;
+        }
+
+        public LoggingListener build() {
+            return new LoggingListener(logger, level, prefix);
+        }
+
+        public Builder atTraceLevel() {
+            return atLogLevel(LogLevel.Trace);
+        }
+
+        public Builder atDebugLevel() {
+            return atLogLevel(LogLevel.Debug);
+        }
+
+        public Builder atInfoLevel() {
+            return atLogLevel(LogLevel.Info);
+        }
+
+        public Builder atWarnLevel() {
+            return atLogLevel(LogLevel.Warn);
+        }
+
+        public Builder atErrorLevel() {
+            return atLogLevel(LogLevel.Error);
+        }
+    }
 }

@@ -2,7 +2,6 @@ package com.github.cb372.util.stream.listener;
 
 import com.github.cb372.util.stream.StreamListener;
 
-import java.io.OutputStream;
 import java.io.PrintStream;
 
 /**
@@ -11,7 +10,7 @@ import java.io.PrintStream;
  * Author: chris
  * Created: 4/5/13
  */
-public class PipingListener implements StreamListener {
+public final class PipingListener implements StreamListener {
 
     private final PrintStream out;
 

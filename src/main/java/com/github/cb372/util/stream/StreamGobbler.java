@@ -12,14 +12,13 @@ import java.util.List;
  * A StreamGobbler consumes an input stream, notifying listeners on
  * every character and every line read.
  *
- * It is essential to consume the STDOUT and STDERR of a process,
+ * It is essential to consume the outpt and error streams of a process,
  * as some processes hang when their output buffers fill up.
  *
  * Author: chris
  * Created: 4/5/13
  */
-public class StreamGobbler {
-
+public final class StreamGobbler {
     private final InputStream stream;
     private final Charset charset;
     private final List<StreamListener> listeners;
