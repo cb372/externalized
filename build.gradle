@@ -1,17 +1,7 @@
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-
-  dependencies {
-    classpath 'eu.appsatori:gradle-fatjar-plugin:0.2-rc1'
-  }
-}
-
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'maven'
-apply plugin: 'fatjar'
+apply plugin: 'signing'
 
 group = "com.github.cb372"
 version = "0.1.0"
@@ -32,6 +22,57 @@ task sourcesJar(type: Jar, dependsOn: classes) {
   from sourceSets.main.allSource
 }
 
+task javadocJar(type: Jar, dependsOn: javadoc) {
+  classifier = 'javadoc'
+  from 'build/docs/javadoc'
+}
+
 artifacts {
+  archives jar
   archives sourcesJar
+  archives javadocJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
+ 
+//            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//              authentication(userName: sonatypeUsername, password: sonatypePassword)
+//            }
+ 
+            pom.project {
+               name 'externalized'
+               packaging 'jar'
+               description 'A handy DSL that makes it easier to work with external processes in Java'
+               url 'https://github.com/cb372/externalized'
+ 
+               scm {
+                   url 'scm:git@github.com:cb372/externalized.git'
+                   connection 'scm:git@github.com:cb372/externalized.git'
+                   developerConnection 'scm:git@github.com:cb372/externalized.git'
+               }
+ 
+               licenses {
+                   license {
+                       name 'The Apache Software License, Version 2.0'
+                       url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                       distribution 'repo'
+                   }
+               }
+ 
+               developers {
+                   developer {
+                       id 'cb372'
+                       name 'Chris Birchall'
+                   }
+               }
+           }
+        }
+    }
 }

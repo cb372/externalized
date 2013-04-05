@@ -76,7 +76,7 @@ public final class ExternalProcessBuilder {
      * Set options for how to handle the process's stderr.
      * By default the stream will be silently consumed and discarded.
      * @param streamProcessingThreadBuilder
-     * @return
+     * @return builder
      */
     public ExternalProcessBuilder processStdErr(StreamProcessingThreadBuilder streamProcessingThreadBuilder) {
         this.stderrGobblerThreadBuilder = streamProcessingThreadBuilder;
