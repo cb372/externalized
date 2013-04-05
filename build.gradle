@@ -37,14 +37,21 @@ signing {
     sign configurations.archives
 }
 
+ext.isSnapshot = version.endsWith("-SNAPSHOT")
+if (isSnapshot) {
+  ext.mavenRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+} else {
+  ext.mavenRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+}
+
 uploadArchives {
     repositories {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
  
-//            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-//              authentication(userName: sonatypeUsername, password: sonatypePassword)
-//            }
+            repository(url: ext.mavenRepoUrl) {
+              authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
  
             pom.project {
                name 'externalized'
