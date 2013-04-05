@@ -49,7 +49,7 @@ uploadArchives {
         mavenDeployer {
             beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
  
-            repository(url: ext.mavenRepoUrl) {
+            repository(url: mavenRepoUrl) {
               authentication(userName: sonatypeUsername, password: sonatypePassword)
             }
  
