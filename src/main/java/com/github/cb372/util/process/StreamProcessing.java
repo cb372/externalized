@@ -1,6 +1,6 @@
 package com.github.cb372.util.process;
 
-import com.github.cb372.util.stream.StreamGobblerThreadBuilder;
+import com.github.cb372.util.stream.StreamProcessingThreadBuilder;
 
 /**
  * Author: chris
@@ -8,8 +8,8 @@ import com.github.cb372.util.stream.StreamGobblerThreadBuilder;
  */
 public final class StreamProcessing {
 
-    public static StreamGobblerThreadBuilder gobble() {
-        return new StreamGobblerThreadBuilder();
+    public static StreamProcessingThreadBuilder consume() {
+        return new StreamProcessingThreadBuilder();
     }
 
 }

@@ -9,21 +9,19 @@ import java.io.IOException;
  * Author: chris
  * Created: 4/5/13
  */
-public final class StreamGobblerRunnable implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(StreamGobblerRunnable.class);
-
-    private final StreamGobbler streamGobbler;
+public final class StreamProcessingRunnable implements Runnable {
+    private final StreamProcessor streamProcessor;
     private final IOExceptionHandler exceptionHandler;
 
-    public StreamGobblerRunnable(StreamGobbler streamGobbler, IOExceptionHandler exceptionHandler) {
-        this.streamGobbler = streamGobbler;
+    public StreamProcessingRunnable(StreamProcessor streamProcessor, IOExceptionHandler exceptionHandler) {
+        this.streamProcessor = streamProcessor;
         this.exceptionHandler = exceptionHandler;
     }
 
     @Override
     public void run() {
         try {
-            streamGobbler.gobble();
+            streamProcessor.gobble();
         } catch (IOException e) {
             exceptionHandler.handle(e);
         }

@@ -1,6 +1,6 @@
 package com.github.cb372.util.process;
 
-import com.github.cb372.util.stream.StreamGobblerThreadBuilder;
+import com.github.cb372.util.stream.StreamProcessingThreadBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,8 +11,8 @@ import java.io.IOException;
  */
 public final class ExternalProcessBuilder {
     private final ProcessBuilder processBuilder;
-    private StreamGobblerThreadBuilder stdoutGobblerThreadBuilder = new StreamGobblerThreadBuilder();
-    private StreamGobblerThreadBuilder stderrGobblerThreadBuilder = new StreamGobblerThreadBuilder();
+    private StreamProcessingThreadBuilder stdoutGobblerThreadBuilder = new StreamProcessingThreadBuilder();
+    private StreamProcessingThreadBuilder stderrGobblerThreadBuilder = new StreamProcessingThreadBuilder();
 
     protected ExternalProcessBuilder(ProcessBuilder processBuilder) {
         this.processBuilder = processBuilder;
@@ -52,7 +52,7 @@ public final class ExternalProcessBuilder {
 
     /**
      * Redirect the process's stderr to stdout.
-     * Note: If this is called, any calls to {@link #processStdErr(StreamGobblerThreadBuilder) processStdErr} will be ignored.
+     * Note: If this is called, any calls to {@link #processStdErr(com.github.cb372.util.stream.StreamProcessingThreadBuilder) processStdErr} will be ignored.
      *
      * @return builder
      */
@@ -64,22 +64,22 @@ public final class ExternalProcessBuilder {
     /**
      * Set options for how to handle the process's stdout.
      * By default the stream will be silently consumed and discarded.
-     * @param streamGobblerThreadBuilder
+     * @param streamProcessingThreadBuilder
      * @return builder
      */
-    public ExternalProcessBuilder processStdOut(StreamGobblerThreadBuilder streamGobblerThreadBuilder) {
-        this.stdoutGobblerThreadBuilder = streamGobblerThreadBuilder;
+    public ExternalProcessBuilder processStdOut(StreamProcessingThreadBuilder streamProcessingThreadBuilder) {
+        this.stdoutGobblerThreadBuilder = streamProcessingThreadBuilder;
         return this;
     }
 
     /**
      * Set options for how to handle the process's stderr.
      * By default the stream will be silently consumed and discarded.
-     * @param streamGobblerThreadBuilder
+     * @param streamProcessingThreadBuilder
      * @return
      */
-    public ExternalProcessBuilder processStdErr(StreamGobblerThreadBuilder streamGobblerThreadBuilder) {
-        this.stderrGobblerThreadBuilder = streamGobblerThreadBuilder;
+    public ExternalProcessBuilder processStdErr(StreamProcessingThreadBuilder streamProcessingThreadBuilder) {
+        this.stderrGobblerThreadBuilder = streamProcessingThreadBuilder;
         return this;
     }
 

@@ -1,5 +1,7 @@
 package com.github.cb372.util.stream;
 
+import com.github.cb372.util.stream.listener.StreamListener;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A StreamGobbler consumes an input stream, notifying listeners on
+ * A StreamProcessor consumes an input stream, notifying listeners on
  * every character and every line read.
  *
  * It is essential to consume the outpt and error streams of a process,
@@ -18,18 +20,18 @@ import java.util.List;
  * Author: chris
  * Created: 4/5/13
  */
-public final class StreamGobbler {
+public final class StreamProcessor {
     private final InputStream stream;
     private final Charset charset;
     private final List<StreamListener> listeners;
 
-    public StreamGobbler(InputStream stream, Charset charset, List<StreamListener> listeners) {
+    public StreamProcessor(InputStream stream, Charset charset, List<StreamListener> listeners) {
         this.stream = stream;
         this.charset = charset;
         this.listeners = listeners;
     }
 
-    public StreamGobbler(InputStream stream, Charset charset, StreamListener... listeners) {
+    public StreamProcessor(InputStream stream, Charset charset, StreamListener... listeners) {
         this(stream, charset, Arrays.asList(listeners));
     }
 
@@ -74,12 +76,15 @@ public final class StreamGobbler {
                     line.append(ch);
                     lastSeen = CharType.Normal;
                 }
+                // pass character to listener callbacks
                 onChar(ch);
             }
             // drain the last line
             if (lastSeen != CharType.Nil) {
                 onLine(line.toString());
             }
+            // tell listeners that it is EOS
+            onEOS();
         } finally {
             reader.close();
         }
@@ -96,6 +101,12 @@ public final class StreamGobbler {
     private void onChar(char c) {
         for (StreamListener listener : listeners) {
             listener.onChar(c);
+        }
+    }
+
+    private void onEOS() {
+        for (StreamListener listener : listeners) {
+            listener.onEndOfStream();
         }
     }
 }

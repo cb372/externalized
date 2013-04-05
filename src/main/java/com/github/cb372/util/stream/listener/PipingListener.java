@@ -1,7 +1,5 @@
 package com.github.cb372.util.stream.listener;
 
-import com.github.cb372.util.stream.StreamListener;
-
 import java.io.PrintStream;
 
 /**
@@ -11,7 +9,6 @@ import java.io.PrintStream;
  * Created: 4/5/13
  */
 public final class PipingListener implements StreamListener {
-
     private final PrintStream out;
 
     public PipingListener(PrintStream out) {
@@ -25,5 +22,13 @@ public final class PipingListener implements StreamListener {
 
     @Override
     public void onLine(String line) {
+        // do nothing
     }
+
+    @Override
+    public void onEndOfStream() {
+        // do nothing
+    }
+
 }
+

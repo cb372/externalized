@@ -1,21 +1,15 @@
 package com.github.cb372.util.process;
 
 
-import com.github.cb372.util.stream.StreamListener;
+import com.github.cb372.util.stream.listener.OutputCollector;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
 
 /**
  * Author: chris
@@ -31,65 +25,52 @@ public class ExternalProcessTest {
 
     @Test
     public void processOutputIsPassedToListeners() throws IOException, InterruptedException {
-        final CountDownLatch linesRead = new CountDownLatch(3);
-        StreamListener stdoutListener = mockListener(linesRead);
-        StreamListener stderrListener = mockListener(linesRead);
+        OutputCollector stdoutListener = new OutputCollector();
+        OutputCollector stderrListener = new OutputCollector();
 
         ExternalProcess process = Command.parse("src/test/resources/myscript.sh")
-                .processStdOut(StreamProcessing.gobble().withListener(stdoutListener))
-                .processStdErr(StreamProcessing.gobble().withListener(stderrListener))
+                .processStdOut(StreamProcessing.consume().withListener(stdoutListener))
+                .processStdErr(StreamProcessing.consume().withListener(stderrListener))
                 .start();
-        process.waitFor();
 
-        assertThat(linesRead.await(1, TimeUnit.SECONDS), is(true));
-        verify(stdoutListener).onLine("hello");
-        verify(stdoutListener).onLine("world");
-        verify(stderrListener).onLine("oh noes");
+        process.waitFor();
+        assertThat(stdoutListener.awaitCompletion(1, TimeUnit.SECONDS), is(true));
+        assertThat(stderrListener.awaitCompletion(1, TimeUnit.SECONDS), is(true));
+
+        assertThat(stdoutListener.get().get(0), equalTo("hello"));
+        assertThat(stdoutListener.get().get(1), equalTo("world"));
+        assertThat(stderrListener.get().get(0), equalTo("oh noes"));
     }
 
     @Test
     public void canRedirectStderrToStdout() throws IOException, InterruptedException {
-        final CountDownLatch linesRead = new CountDownLatch(3);
-        StreamListener stdoutListener = mockListener(linesRead);
+        OutputCollector stdoutListener = new OutputCollector();
 
         ExternalProcess process = Command.parse("src/test/resources/myscript.sh")
-                .processStdOut(StreamProcessing.gobble().withListener(stdoutListener))
+                .processStdOut(StreamProcessing.consume().withListener(stdoutListener))
                 .redirectingErrorStream()
                 .start();
-        process.waitFor();
 
-        assertThat(linesRead.await(1, TimeUnit.SECONDS), is(true));
-        verify(stdoutListener).onLine("hello");
-        verify(stdoutListener).onLine("world");
-        verify(stdoutListener).onLine("oh noes");
+        process.waitFor();
+        assertThat(stdoutListener.awaitCompletion(1, TimeUnit.SECONDS), is(true));
+
+        assertThat(stdoutListener.get().get(0), equalTo("hello"));
+        assertThat(stdoutListener.get().get(1), equalTo("world"));
+        assertThat(stdoutListener.get().get(2), equalTo("oh noes"));
     }
 
     @Test
     public void canSetEnvironmentVariables() throws IOException, InterruptedException {
-        final CountDownLatch linesRead = new CountDownLatch(1);
-        StreamListener stdoutListener = mockListener(linesRead);
+        OutputCollector stdoutListener = new OutputCollector();
 
         ExternalProcess process = Command.parse("src/test/resources/echo-foo.sh")
                 .withEnvVar("FOO", "bar")
-                .processStdOut(StreamProcessing.gobble().withListener(stdoutListener))
+                .processStdOut(StreamProcessing.consume().withListener(stdoutListener))
                 .start();
         process.waitFor();
 
-        assertThat(linesRead.await(1, TimeUnit.SECONDS), is(true));
-        verify(stdoutListener).onLine("bar");
+        assertThat(stdoutListener.awaitCompletion(1, TimeUnit.SECONDS), is(true));
+        assertThat(stdoutListener.get().get(0), equalTo("bar"));
     }
 
-    private StreamListener mockListener(final CountDownLatch linesRead) {
-        StreamListener listener = mock(StreamListener.class);
-
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                linesRead.countDown();
-                return null;
-            }
-        }).when(listener).onLine(anyString());
-
-        return listener;
-    }
 }

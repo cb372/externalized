@@ -1,5 +1,6 @@
 package com.github.cb372.util.stream;
 
+import com.github.cb372.util.stream.listener.StreamListener;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -17,7 +18,7 @@ import static org.junit.Assert.assertThat;
  * Author: chris
  * Created: 4/5/13
  */
-public class StreamGobblerTest {
+public class StreamProcessorTest {
 
     Charset utf8 = Charset.forName("UTF-8");
 
@@ -25,9 +26,10 @@ public class StreamGobblerTest {
     public void handlesEmptyStream() throws IOException {
         InputStream stream = new ByteArrayInputStream(new byte[0]);
         MockListener listener = new MockListener();
-        new StreamGobbler(stream, utf8, listener).gobble();
+        new StreamProcessor(stream, utf8, listener).gobble();
 
-        assertThat(listener.calls.size(), is(0));
+        assertThat(listener.calls.size(), is(1));
+        assertThat(listener.calls.get(0), is("EOS"));
     }
 
     @Test
@@ -35,7 +37,7 @@ public class StreamGobblerTest {
         String text = "abc\ndef";
         InputStream stream = new ByteArrayInputStream(text.getBytes(utf8));
         MockListener listener = new MockListener();
-        new StreamGobbler(stream, utf8, listener).gobble();
+        new StreamProcessor(stream, utf8, listener).gobble();
 
         assertThat(listener.calls.get(0), is("a"));
         assertThat(listener.calls.get(1), is("b"));
@@ -46,6 +48,7 @@ public class StreamGobblerTest {
         assertThat(listener.calls.get(6), is("e"));
         assertThat(listener.calls.get(7), is("f"));
         assertThat(listener.calls.get(8), is("def"));
+        assertThat(listener.calls.get(9), is("EOS"));
     }
 
     @Test
@@ -53,7 +56,7 @@ public class StreamGobblerTest {
         String text = "あいう\nかきく";
         InputStream stream = new ByteArrayInputStream(text.getBytes(utf8));
         MockListener listener = new MockListener();
-        new StreamGobbler(stream, utf8, listener).gobble();
+        new StreamProcessor(stream, utf8, listener).gobble();
 
         assertThat(listener.calls.get(0), is("あ"));
         assertThat(listener.calls.get(1), is("い"));
@@ -64,6 +67,7 @@ public class StreamGobblerTest {
         assertThat(listener.calls.get(6), is("き"));
         assertThat(listener.calls.get(7), is("く"));
         assertThat(listener.calls.get(8), is("かきく"));
+        assertThat(listener.calls.get(9), is("EOS"));
     }
 
     @Test
@@ -71,7 +75,7 @@ public class StreamGobblerTest {
         String text = "abc\r\ndef";
         InputStream stream = new ByteArrayInputStream(text.getBytes(utf8));
         MockListener listener = new MockListener();
-        new StreamGobbler(stream, utf8, listener).gobble();
+        new StreamProcessor(stream, utf8, listener).gobble();
 
         assertThat(listener.calls.get(0), is("a"));
         assertThat(listener.calls.get(1), is("b"));
@@ -83,6 +87,7 @@ public class StreamGobblerTest {
         assertThat(listener.calls.get(7), is("e"));
         assertThat(listener.calls.get(8), is("f"));
         assertThat(listener.calls.get(9), is("def"));
+        assertThat(listener.calls.get(10), is("EOS"));
     }
 
     @Test
@@ -90,7 +95,7 @@ public class StreamGobblerTest {
         String text = "a\n\n\nb\n\n";
         InputStream stream = new ByteArrayInputStream(text.getBytes(utf8));
         MockListener listener = new MockListener();
-        new StreamGobbler(stream, utf8, listener).gobble();
+        new StreamProcessor(stream, utf8, listener).gobble();
 
         assertThat(listener.calls.get(0), is("a"));
         assertThat(listener.calls.get(1), is("\n"));
@@ -104,6 +109,7 @@ public class StreamGobblerTest {
         assertThat(listener.calls.get(9), is("b"));
         assertThat(listener.calls.get(10), is("\n"));
         assertThat(listener.calls.get(11), is(""));
+        assertThat(listener.calls.get(12), is("EOS"));
     }
 
     static class MockListener implements StreamListener {
@@ -117,6 +123,11 @@ public class StreamGobblerTest {
         @Override
         public void onLine(String line) {
             calls.add(line);
+        }
+
+        @Override
+        public void onEndOfStream() {
+            calls.add("EOS");
         }
     }
 }

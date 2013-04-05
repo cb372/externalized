@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.github.cb372.util.process.Logging.usingLogger;
-import static com.github.cb372.util.process.StreamProcessing.gobble;
+import static com.github.cb372.util.process.StreamProcessing.consume;
 
 /**
  * Author: chris
@@ -22,15 +22,15 @@ public class ExternalProcessSample {
     public void example() throws IOException, InterruptedException {
         // Use the DSL to build a process
         ExternalProcess process = Command.parse("myscript.sh -a -b -c foo bar")
-                .withEnvVar("WIBBLE", "wobble")
+                .withEnvVar("WIBBLE", "wobble") // add environment variables to the process's environment
                 .withEnvVar("FUNKY", "monkey")
-                .withWorkingDirectory(new File("/tmp"))
-                .processStdOut(gobble()
+                .withWorkingDirectory(new File("/tmp")) // set the working directory
+                .processStdOut(consume()
                         .withCharset("UTF-8")
-                        .pipingToStdOut() // pipe all process output to our stdout/stderr
+                        .pipingToStdOut() // pipe all process output to our own stdout/stderr
                         .withLogging(usingLogger(myLogger).atInfoLevel().withPrefix("Script output: ")) // log process output
                 )
-                .processStdErr(gobble()
+                .processStdErr(consume()
                         .withCharset("UTF-8")
                         .withLogging(usingLogger(myErrorLogger).atErrorLevel().withPrefix("Error in script!! - "))
                         .withListener(new MyCustomErrorListener()) // add your own custom listeners

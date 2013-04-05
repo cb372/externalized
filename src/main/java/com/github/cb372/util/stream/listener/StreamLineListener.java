@@ -1,7 +1,5 @@
 package com.github.cb372.util.stream.listener;
 
-import com.github.cb372.util.stream.StreamListener;
-
 /**
  * A stream listener that ignores individual characters
  * and listens to output per-line.
@@ -16,4 +14,8 @@ public abstract class StreamLineListener implements StreamListener {
         // do nothing
     }
 
+    @Override
+    public void onEndOfStream() {
+        // do nothing
+    }
 }

@@ -1,4 +1,4 @@
-package com.github.cb372.util.stream;
+package com.github.cb372.util.stream.listener;
 
 /**
  * A listener with callback events for every character
@@ -20,5 +20,10 @@ public interface StreamListener {
      * @param line line (does not include newline characters)
      */
     public void onLine(String line);
+
+    /**
+     * Called when the output has finished.
+     */
+    void onEndOfStream();
 
 }
