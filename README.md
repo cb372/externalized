@@ -41,3 +41,8 @@ Dependencies
 
 * Java 6 or newer
 * slf4j API
+
+Licence
+-----
+
+Apache 2.0
