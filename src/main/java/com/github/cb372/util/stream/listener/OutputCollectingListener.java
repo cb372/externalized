@@ -1,5 +1,7 @@
 package com.github.cb372.util.stream.listener;
 
+import com.github.cb372.util.stream.collector.OutputCollector;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.concurrent.TimeUnit;
  * Author: chris
  * Created: 4/5/13
  */
-public class OutputCollector implements StreamListener {
+public class OutputCollectingListener implements StreamListener, OutputCollector {
     private List<String> lines = new ArrayList<String>();
     private CountDownLatch complete = new CountDownLatch(1);
 
@@ -37,7 +39,7 @@ public class OutputCollector implements StreamListener {
     }
 
     /**
-     * Wait until all output has been collected
+     * Wait until all output has been collected.
      * @throws InterruptedException
      */
     public void awaitCompletion() throws InterruptedException {
@@ -51,16 +53,12 @@ public class OutputCollector implements StreamListener {
      * @return false if timed out
      * @throws InterruptedException
      */
-    public boolean awaitCompletion(long time, TimeUnit timeUnit) throws InterruptedException {
+    public boolean awaitOutputCollection(long time, TimeUnit timeUnit) throws InterruptedException {
         return complete.await(time, timeUnit);
     }
 
-    /**
-     * Get the collected output. Warning: will block if not all ouput has yet been collected.
-     * @return lines of output
-     * @throws InterruptedException
-     */
-    public List<String> get() throws InterruptedException {
+    @Override
+    public List<String> getOutput() throws InterruptedException {
         awaitCompletion();
         return Collections.unmodifiableList(lines);
     }
@@ -72,8 +70,12 @@ public class OutputCollector implements StreamListener {
      * @return lines of output
      * @throws InterruptedException
      */
-    public List<String> get(long time, TimeUnit timeUnit) throws InterruptedException {
-        awaitCompletion(time, timeUnit);
-        return Collections.unmodifiableList(lines);
+    @Override
+    public List<String> getOutput(long time, TimeUnit timeUnit) throws InterruptedException {
+        if (awaitOutputCollection(time, timeUnit)) {
+            return Collections.unmodifiableList(lines);
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

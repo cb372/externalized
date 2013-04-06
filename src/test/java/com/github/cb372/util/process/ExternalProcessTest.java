@@ -1,7 +1,7 @@
 package com.github.cb372.util.process;
 
 
-import com.github.cb372.util.stream.listener.OutputCollector;
+import com.github.cb372.util.stream.listener.OutputCollectingListener;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -25,8 +25,8 @@ public class ExternalProcessTest {
 
     @Test
     public void processOutputIsPassedToListeners() throws IOException, InterruptedException {
-        OutputCollector stdoutListener = new OutputCollector();
-        OutputCollector stderrListener = new OutputCollector();
+        OutputCollectingListener stdoutListener = new OutputCollectingListener();
+        OutputCollectingListener stderrListener = new OutputCollectingListener();
 
         ExternalProcess process = Command.parse("src/test/resources/myscript.sh")
                 .processStdOut(StreamProcessing.consume().withListener(stdoutListener))
@@ -34,17 +34,17 @@ public class ExternalProcessTest {
                 .start();
 
         process.waitFor();
-        assertThat(stdoutListener.awaitCompletion(1, TimeUnit.SECONDS), is(true));
-        assertThat(stderrListener.awaitCompletion(1, TimeUnit.SECONDS), is(true));
+        assertThat(stdoutListener.awaitOutputCollection(1, TimeUnit.SECONDS), is(true));
+        assertThat(stderrListener.awaitOutputCollection(1, TimeUnit.SECONDS), is(true));
 
-        assertThat(stdoutListener.get().get(0), equalTo("hello"));
-        assertThat(stdoutListener.get().get(1), equalTo("world"));
-        assertThat(stderrListener.get().get(0), equalTo("oh noes"));
+        assertThat(stdoutListener.getOutput().get(0), equalTo("hello"));
+        assertThat(stdoutListener.getOutput().get(1), equalTo("world"));
+        assertThat(stderrListener.getOutput().get(0), equalTo("oh noes"));
     }
 
     @Test
     public void canRedirectStderrToStdout() throws IOException, InterruptedException {
-        OutputCollector stdoutListener = new OutputCollector();
+        OutputCollectingListener stdoutListener = new OutputCollectingListener();
 
         ExternalProcess process = Command.parse("src/test/resources/myscript.sh")
                 .processStdOut(StreamProcessing.consume().withListener(stdoutListener))
@@ -52,16 +52,16 @@ public class ExternalProcessTest {
                 .start();
 
         process.waitFor();
-        assertThat(stdoutListener.awaitCompletion(1, TimeUnit.SECONDS), is(true));
+        assertThat(stdoutListener.awaitOutputCollection(1, TimeUnit.SECONDS), is(true));
 
-        assertThat(stdoutListener.get().get(0), equalTo("hello"));
-        assertThat(stdoutListener.get().get(1), equalTo("world"));
-        assertThat(stdoutListener.get().get(2), equalTo("oh noes"));
+        assertThat(stdoutListener.getOutput().get(0), equalTo("hello"));
+        assertThat(stdoutListener.getOutput().get(1), equalTo("world"));
+        assertThat(stdoutListener.getOutput().get(2), equalTo("oh noes"));
     }
 
     @Test
     public void canSetEnvironmentVariables() throws IOException, InterruptedException {
-        OutputCollector stdoutListener = new OutputCollector();
+        OutputCollectingListener stdoutListener = new OutputCollectingListener();
 
         ExternalProcess process = Command.parse("src/test/resources/echo-foo.sh")
                 .withEnvVar("FOO", "bar")
@@ -69,8 +69,28 @@ public class ExternalProcessTest {
                 .start();
         process.waitFor();
 
-        assertThat(stdoutListener.awaitCompletion(1, TimeUnit.SECONDS), is(true));
-        assertThat(stdoutListener.get().get(0), equalTo("bar"));
+        assertThat(stdoutListener.awaitOutputCollection(1, TimeUnit.SECONDS), is(true));
+        assertThat(stdoutListener.getOutput().get(0), equalTo("bar"));
     }
 
+    @Test
+    public void collectsProcessOutputIfToldTo() throws IOException, InterruptedException {
+        ExternalProcess process = Command.parse("src/test/resources/myscript.sh")
+                .collectStdOut()
+                .start();
+        process.waitFor();
+
+        assertThat(process.getOutput().size(), equalTo(2));
+        assertThat(process.getOutput().get(0), equalTo("hello"));
+        assertThat(process.getOutput().get(1), equalTo("world"));
+    }
+
+    @Test
+    public void doesNotCollectProcessOutputUnlessToldTo() throws IOException, InterruptedException {
+        ExternalProcess process = Command.parse("src/test/resources/myscript.sh")
+                .start();
+        process.waitFor();
+
+        assertThat(process.getOutput().isEmpty(), is(true));
+    }
 }

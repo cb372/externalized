@@ -19,7 +19,7 @@ public class ExternalProcessSample {
     private final Logger myLogger = LoggerFactory.getLogger("myLogger");
     private final Logger myErrorLogger = LoggerFactory.getLogger("myErrorLogger");
 
-    public void example() throws IOException, InterruptedException {
+    public void example1() throws IOException, InterruptedException {
         // Use the DSL to build a process
         ExternalProcess process = Command.parse("myscript.sh -a -b -c foo bar")
                 .withEnvVar("WIBBLE", "wobble") // add environment variables to the process's environment
@@ -46,6 +46,19 @@ public class ExternalProcessSample {
         // You can treat ExternalProcess just like java.lang.Process
         int exitCode = process.waitFor();
         System.out.println("Process finished with exit code " + exitCode);
+    }
+
+    public void example2() throws IOException, InterruptedException {
+        // Run a process
+        ExternalProcess process = Command.parse("myscript.sh")
+                .collectStdOut()  // collect all data that the process sends to stdout
+                .start();
+
+        // After the process has finished, you can access the data it sent to stdout
+        String firstLineOfOutput = process.getOutput().get(0);
+        if (firstLineOfOutput.equals("OK")) {
+            System.out.println("Looks like the script ran fine!");
+        }
     }
 
 }

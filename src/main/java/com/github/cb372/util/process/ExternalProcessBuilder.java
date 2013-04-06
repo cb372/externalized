@@ -1,6 +1,9 @@
 package com.github.cb372.util.process;
 
+import com.github.cb372.util.stream.collector.DummyOutputCollector;
+import com.github.cb372.util.stream.collector.OutputCollector;
 import com.github.cb372.util.stream.StreamProcessingThreadBuilder;
+import com.github.cb372.util.stream.listener.OutputCollectingListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +16,7 @@ public final class ExternalProcessBuilder {
     private final ProcessBuilder processBuilder;
     private StreamProcessingThreadBuilder stdoutGobblerThreadBuilder = new StreamProcessingThreadBuilder();
     private StreamProcessingThreadBuilder stderrGobblerThreadBuilder = new StreamProcessingThreadBuilder();
+    private boolean collectStdOut = false;
 
     protected ExternalProcessBuilder(ProcessBuilder processBuilder) {
         this.processBuilder = processBuilder;
@@ -84,6 +88,29 @@ public final class ExternalProcessBuilder {
     }
 
     /**
+     * <p>
+     * Collect all data that the process sends to stdout.
+     * </p>
+     * <p>
+     * If you set this option, you can access this data by calling {@link com.github.cb372.util.process.ExternalProcess#getOutput()}
+     * after the process has completed.
+     * </p>
+     * <p>
+     * Warning: The amount of data that can be collected is unbounded,
+     * so you may encounter OutOfMemory problems if your process has a lot of output.
+     * </p>
+     * <p>
+     * For this reason, this option is disabled by default.
+     * </p>
+     *
+     * @return builder
+     */
+    public ExternalProcessBuilder collectStdOut() {
+        this.collectStdOut = true;
+        return this;
+    }
+
+    /**
      * Start the process.
      * @return the started process
      * @throws IOException if the process failed to start
@@ -91,6 +118,15 @@ public final class ExternalProcessBuilder {
     public ExternalProcess start() throws IOException {
         // Start the process
         Process process = processBuilder.start();
+
+        OutputCollector outputCollector;
+        if (collectStdOut) {
+            OutputCollectingListener outputCollectingListener = new OutputCollectingListener();
+            stdoutGobblerThreadBuilder.withListener(outputCollectingListener);
+            outputCollector = outputCollectingListener;
+        } else {
+            outputCollector = new DummyOutputCollector();
+        }
 
         // Start the output stream processing threads
         Thread stdoutGobblerThread = stdoutGobblerThreadBuilder.build(process.getInputStream());
@@ -101,7 +137,7 @@ public final class ExternalProcessBuilder {
         }
 
         // return the process
-        return new JavaLangProcessWrapper(process);
+        return new JavaLangProcessWrapper(process, outputCollector);
     }
 
 }

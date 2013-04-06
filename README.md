@@ -30,7 +30,7 @@ You can register one or more listeners to be notified of data received on a proc
 
 The following `StreamListener` implementations are provided:
 
-* `OutputCollector` - saves all output from a given stream as a `List<String>`
+* `OutputCollectingListener` - saves all output from a given stream as a `List<String>`
 * `LoggingListener` - pipes all output to an Slf4j logger of your choosing
 * `PipingListener` - pipes all output to our own stdout/stderr
 
