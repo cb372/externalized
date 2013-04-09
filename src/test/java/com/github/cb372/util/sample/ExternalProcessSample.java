@@ -2,12 +2,14 @@ package com.github.cb372.util.sample;
 
 import com.github.cb372.util.process.Command;
 import com.github.cb372.util.process.ExternalProcess;
+import com.github.cb372.util.process.Foo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 
+import static com.github.cb372.util.process.Java.mainClass;
 import static com.github.cb372.util.process.Logging.usingLogger;
 import static com.github.cb372.util.process.StreamProcessing.consume;
 
@@ -20,6 +22,10 @@ public class ExternalProcessSample {
     private final Logger myErrorLogger = LoggerFactory.getLogger("myErrorLogger");
 
     public void example1() throws IOException, InterruptedException {
+        /*
+         * Example 1: Detailed configuration
+         */
+
         // Use the DSL to build a process
         ExternalProcess process = Command.parse("myscript.sh -a -b -c foo bar")
                 .withEnvVar("WIBBLE", "wobble") // add environment variables to the process's environment
@@ -49,6 +55,10 @@ public class ExternalProcessSample {
     }
 
     public void example2() throws IOException, InterruptedException {
+        /*
+         * Example 2: Collecting output from the process
+         */
+
         // Run a process
         ExternalProcess process = Command.parse("myscript.sh")
                 .collectStdOut()  // collect all data that the process sends to stdout
@@ -61,4 +71,15 @@ public class ExternalProcessSample {
         }
     }
 
+    public void example3() throws IOException {
+        /*
+         * Example 3: Running a Java class in a separate process
+         */
+        ExternalProcess process = Command.java(mainClass(Foo.class)
+                                            .jvmArg("-Xmx512m")
+                                            .sysProp("foo", "bar")
+                                            .arg("hello")
+                )
+                .start();
+    }
 }
