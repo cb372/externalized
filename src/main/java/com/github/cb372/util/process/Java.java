@@ -8,23 +8,8 @@ package com.github.cb372.util.process;
  */
 public final class Java {
 
-    /**
-     * Start building a command to run the given class in a separate process.
-     *
-     * @param mainClass fully qualified class name. Class must have a public static void main method.
-     * @return builder
-     */
-    public static JavaCommandBuilder mainClass(String mainClass) {
-        return new JavaCommandBuilder(mainClass);
+    public static JavaCommandBuilder java() {
+        return new JavaCommandBuilder.WithoutMainClass();
     }
 
-    /**
-     * Start building a command to run the given class in a separate process.
-     *
-     * @param mainClass class to run. Class must have a public static void main method.
-     * @return builder
-     */
-    public static JavaCommandBuilder mainClass(Class<?> mainClass) {
-        return new JavaCommandBuilder(mainClass.getCanonicalName());
-    }
 }

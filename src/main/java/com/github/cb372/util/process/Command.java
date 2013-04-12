@@ -43,13 +43,13 @@ public final class Command {
     }
 
     /**
-     * Pass a Java command. {@see {@link Java}}
+     * Pass something that can provide a java.lang.ProcessBuilder
      *
-     * @param javaCommandBuilder Java command builder
+     * @param processBuilderProvider provide
      * @return a process builder
      */
-    public static ExternalProcessBuilder java(JavaCommandBuilder javaCommandBuilder) {
-        return new ExternalProcessBuilder(javaCommandBuilder.build());
+    public static ExternalProcessBuilder command(ProcessBuilderProvider processBuilderProvider) {
+        return new ExternalProcessBuilder(processBuilderProvider.getProcessBuilder());
     }
 
 }

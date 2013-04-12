@@ -8,16 +8,24 @@ import java.util.List;
  * Author: chris
  * Created: 4/8/13
  */
-public class JavaCommandBuilder {
+public abstract class JavaCommandBuilder<T extends JavaCommandBuilder<T>> {
+    private final Class<T> subclass;
 
-    private final String mainClass;
-    private File javaHome = new File(System.getProperty("java.home"));
-    private List<String> args = new ArrayList<String>();
-    private List<String> jvmArgs = new ArrayList<String>();
-    private String classpath = System.getProperty("java.class.path");
+    protected File javaHome = new File(System.getProperty("java.home"));
+    protected List<String> jvmArgs = new ArrayList<String>();
+    protected List<String> args = new ArrayList<String>();
+    protected String classpath = System.getProperty("java.class.path");
 
-    protected JavaCommandBuilder(String mainClass) {
-        this.mainClass = mainClass;
+    protected JavaCommandBuilder(Class<T> subclass) {
+        this.subclass = subclass;
+    }
+
+    protected JavaCommandBuilder(Class<T> subclass, File javaHome, List<String> jvmArgs, List<String> args, String classpath) {
+        this(subclass);
+        this.javaHome = javaHome;
+        this.jvmArgs = jvmArgs;
+        this.args = args;
+        this.classpath = classpath;
     }
 
     /**
@@ -28,9 +36,9 @@ public class JavaCommandBuilder {
      * @param javaHome Java home dir
      * @return builder
      */
-    public JavaCommandBuilder javaHome(File javaHome) {
+    public T javaHome(File javaHome) {
         this.javaHome = javaHome;
-        return this;
+        return subclass.cast(this);
     }
 
     /**
@@ -39,9 +47,9 @@ public class JavaCommandBuilder {
      * @param arg
      * @return builder
      */
-    public JavaCommandBuilder arg(String arg) {
+    public T arg(String arg) {
         args.add(arg);
-        return this;
+        return subclass.cast(this);
     }
 
     /**
@@ -49,9 +57,9 @@ public class JavaCommandBuilder {
      * @param arg JVM arg. e.g. "-Xm512m"
      * @return builder
      */
-    public JavaCommandBuilder jvmArg(String arg) {
+    public T jvmArg(String arg) {
         jvmArgs.add(arg);
-        return this;
+        return subclass.cast(this);
     }
 
     /**
@@ -60,28 +68,66 @@ public class JavaCommandBuilder {
      * @param value value
      * @return builder
      */
-    public JavaCommandBuilder sysProp(String key, String value) {
+    public T sysProp(String key, String value) {
         jvmArgs.add(String.format("-D%s=%s", key, value));
-        return this;
+        return subclass.cast(this);
     }
 
-    /**
-     * Build the Java command.
-     * @return
-     */
-    protected ProcessBuilder build() {
-        List<String> cmd = new ArrayList<String>();
-        cmd.add(new File(javaHome, "bin/java").getAbsolutePath());
-        cmd.add("-cp");
-        cmd.add(classpath);
-        for (String arg : jvmArgs) {
-            cmd.add(arg);
+    public WithMainClass mainClass(String mainClass) {
+        return new WithMainClass(javaHome, jvmArgs, args, classpath, mainClass);
+    }
+
+    public WithMainClass mainClass(Class<?> mainClass) {
+        return new WithMainClass(javaHome, jvmArgs, args, classpath, mainClass.getCanonicalName());
+    }
+
+    static final class WithoutMainClass extends JavaCommandBuilder<WithoutMainClass> {
+        protected WithoutMainClass() {
+            super(WithoutMainClass.class);
         }
-        cmd.add(mainClass);
-        for (String arg : args) {
-            cmd.add(arg);
+    }
+
+    public static final class WithMainClass extends JavaCommandBuilder<WithMainClass> implements ProcessBuilderProvider {
+        private String mainClass;
+
+        public WithMainClass(File javaHome,
+                             List<String> jvmArgs,
+                             List<String> args,
+                             String classpath,
+                             String mainClass) {
+            super(WithMainClass.class, javaHome, jvmArgs, args, classpath);
+            this.mainClass = mainClass;
         }
-        return new ProcessBuilder(cmd);
+
+        @Override
+        public WithMainClass mainClass(String mainClass) {
+            this.mainClass = mainClass;
+            return this;
+        }
+
+        @Override
+        public WithMainClass mainClass(Class<?> mainClass) {
+            this.mainClass = mainClass.getCanonicalName();
+            return this;
+        }
+
+        @Override
+        public ProcessBuilder getProcessBuilder() {
+            List<String> cmd = new ArrayList<String>();
+            cmd.add(new File(javaHome, "bin/java").getAbsolutePath());
+            cmd.add("-cp");
+            cmd.add(classpath);
+            for (String arg : jvmArgs) {
+                cmd.add(arg);
+            }
+            cmd.add(mainClass);
+            for (String arg : args) {
+                cmd.add(arg);
+            }
+            return new ProcessBuilder(cmd);
+        }
     }
 
 }
+
+

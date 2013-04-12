@@ -1,15 +1,16 @@
 package com.github.cb372.util.sample;
 
-import com.github.cb372.util.process.Command;
 import com.github.cb372.util.process.ExternalProcess;
-import com.github.cb372.util.process.Foo;
+import com.github.cb372.util.process.PrintHello;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 
-import static com.github.cb372.util.process.Java.mainClass;
+import static com.github.cb372.util.process.Command.parse;
+import static com.github.cb372.util.process.Command.command;
+import static com.github.cb372.util.process.Java.java;
 import static com.github.cb372.util.process.Logging.usingLogger;
 import static com.github.cb372.util.process.StreamProcessing.consume;
 
@@ -27,7 +28,7 @@ public class ExternalProcessSample {
          */
 
         // Use the DSL to build a process
-        ExternalProcess process = Command.parse("myscript.sh -a -b -c foo bar")
+        ExternalProcess process = parse("myscript.sh -a -b -c foo bar")
                 .withEnvVar("WIBBLE", "wobble") // add environment variables to the process's environment
                 .withEnvVar("FUNKY", "monkey")
                 .withWorkingDirectory(new File("/tmp")) // set the working directory
@@ -60,7 +61,7 @@ public class ExternalProcessSample {
          */
 
         // Run a process
-        ExternalProcess process = Command.parse("myscript.sh")
+        ExternalProcess process = command("myscript.sh")
                 .collectStdOut()  // collect all data that the process sends to stdout
                 .start();
 
@@ -75,11 +76,13 @@ public class ExternalProcessSample {
         /*
          * Example 3: Running a Java class in a separate process
          */
-        ExternalProcess process = Command.java(mainClass(Foo.class)
-                                            .jvmArg("-Xmx512m")
-                                            .sysProp("foo", "bar")
-                                            .arg("hello")
-                )
+        ExternalProcess process = command(java()
+                .jvmArg("-Xmx512m")
+                .sysProp("foo", "bar")
+                .mainClass(PrintHello.class)
+                .arg("hello")
+                .arg("world"))
                 .start();
+
     }
 }
