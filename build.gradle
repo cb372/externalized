@@ -47,7 +47,7 @@ if (isSnapshot) {
 uploadArchives {
     repositories {
         mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
  
             repository(url: mavenRepoUrl) {
               authentication(userName: sonatypeUsername, password: sonatypePassword)
