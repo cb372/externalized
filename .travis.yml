@@ -3,4 +3,4 @@ language: java
 jdk:
   - openjdk7
 
-script: "gradle -b travis.gradle check"
+script: "gradle check"
