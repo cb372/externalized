@@ -77,11 +77,14 @@ public class ExternalProcessSample {
          * Example 3: Running a Java class in a separate process
          */
         ExternalProcess process = command(java()
-                .jvmArg("-Xmx512m")
-                .sysProp("foo", "bar")
+                .usingJavaHome(new File("/usr/local/java7"))
+                .withJvmArgs("-verbose:gc", "-Xloggc:gc.log")
+                .withJvmArg("-Xmx512m")
+                .withSysProp("foo", "bar")
+                .withClasspathElement(new File("extra-lib.jar"))
                 .mainClass(PrintHello.class)
-                .arg("hello")
-                .arg("world"))
+                .withArg("hello")
+                .withArg("world"))
                 .start();
 
     }

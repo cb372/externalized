@@ -27,10 +27,10 @@ public class JavaCommandTest {
     @Test
     public void argumentsAndSysPropsArePassedToProcess() throws IOException, InterruptedException {
         ExternalProcess process = command(java()
-                .sysProp("foo", "bar")
+                .withSysProp("foo", "bar")
                 .mainClass(PrintSysPropAndArgs.class)
-                .arg("hello")
-                .arg("world"))
+                .withArg("hello")
+                .withArg("world"))
                 .collectStdOut()
                 .start();
 

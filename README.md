@@ -1,10 +1,10 @@
-Externalized
-=====
+# Externalized
 
 A handy DSL to make it easier to work with external processes in Java.
 
-Sample
------
+## Usage
+
+### Sample
 
 ````java
 ExternalProcess process = Command.parse("myscript.sh -a -b -c foo bar")
@@ -21,10 +21,9 @@ ExternalProcess process = Command.parse("myscript.sh -a -b -c foo bar")
         .start();
 ````
 
-See [here](src/test/java/com/github/cb372/util/sample/ExternalProcessSample.java) for a more detailed example.
+See [here](src/test/java/com/github/cb372/util/sample/ExternalProcessSample.java) for more examples.
 
-Listeners
------
+### Listeners
 
 You can register one or more listeners to be notified of data received on a process's stdout or stderr.
 
@@ -42,12 +41,28 @@ ExternalProcess process = Command.parse("foo bar baz")
         .start();
 ````
 
-Usage
------
+### Run Java from Java
+
+Yo dawg, I heard you like Java...
+
+There is also a DSL for constructing Java commands, so you can easily run a Java class in a separate process.
+
+By default the child process will use the same JDK/JRE and classpath as the currently running JVM.
+
+````java
+ExternalProcess process = command(java()
+                                .withJvmArgs("-verbose:gc", "-Xloggc:gc.log", "-Xmx512m")
+                                .withSysProp("foo", "bar") // will be passed as -Dfoo=bar
+                                .mainClass(PrintHello.class)  // the class to run
+                                .withArgs("hello", "world"))
+        .withWorkingDirectory(...) // you can configure everything you would with a normal process
+        .processStdOut(...)
+        .start();
+````
+
+## Maven
 
 Available on Maven central.
-
-Maven:
 
 ````
 <dependency>
@@ -57,13 +72,11 @@ Maven:
 </dependency>
 ````
 
-Dependencies
------
+## Dependencies
 
 * Java 6 or newer
 * slf4j API
 
-Licence
------
+## Licence
 
 Apache 2.0
