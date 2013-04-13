@@ -33,53 +33,57 @@ artifacts {
   archives javadocJar
 }
 
-signing {
-    sign configurations.archives
-}
+if (hasProperty('sonatypeUsername') && hasProperty('sonatypePassword')) {
 
-ext.isSnapshot = version.endsWith("-SNAPSHOT")
-if (isSnapshot) {
-  ext.mavenRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
-} else {
-  ext.mavenRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-}
+  signing {
+      sign configurations.archives
+  }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
- 
-            repository(url: mavenRepoUrl) {
-              authentication(userName: sonatypeUsername, password: sonatypePassword)
-            }
- 
-            pom.project {
-               name 'externalized'
-               packaging 'jar'
-               description 'A handy DSL that makes it easier to work with external processes in Java'
-               url 'https://github.com/cb372/externalized'
- 
-               scm {
-                   url 'scm:git@github.com:cb372/externalized.git'
-                   connection 'scm:git@github.com:cb372/externalized.git'
-                   developerConnection 'scm:git@github.com:cb372/externalized.git'
-               }
- 
-               licenses {
-                   license {
-                       name 'The Apache Software License, Version 2.0'
-                       url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                       distribution 'repo'
-                   }
-               }
- 
-               developers {
-                   developer {
-                       id 'cb372'
-                       name 'Chris Birchall'
-                   }
-               }
-           }
-        }
-    }
+  ext.isSnapshot = version.endsWith("-SNAPSHOT")
+  if (isSnapshot) {
+    ext.mavenRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+  } else {
+    ext.mavenRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+  }
+
+  uploadArchives {
+      repositories {
+          mavenDeployer {
+              beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+   
+              repository(url: mavenRepoUrl) {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+              }
+   
+              pom.project {
+                 name 'externalized'
+                 packaging 'jar'
+                 description 'A handy DSL that makes it easier to work with external processes in Java'
+                 url 'https://github.com/cb372/externalized'
+   
+                 scm {
+                     url 'scm:git@github.com:cb372/externalized.git'
+                     connection 'scm:git@github.com:cb372/externalized.git'
+                     developerConnection 'scm:git@github.com:cb372/externalized.git'
+                 }
+   
+                 licenses {
+                     license {
+                         name 'The Apache Software License, Version 2.0'
+                         url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                         distribution 'repo'
+                     }
+                 }
+   
+                 developers {
+                     developer {
+                         id 'cb372'
+                         name 'Chris Birchall'
+                     }
+                 }
+             }
+          }
+      }
+  }
+
 }
