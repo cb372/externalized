@@ -1,4 +1,4 @@
-# Externalized
+# Externalized [![Build Status](https://travis-ci.org/cb372/externalized.png?branch=master)](https://travis-ci.org/cb372/externalized)
 
 A handy DSL to make it easier to work with external processes in Java.
 
