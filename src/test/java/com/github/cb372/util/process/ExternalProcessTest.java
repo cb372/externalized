@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
+import static com.github.cb372.util.process.Java.java;
 import static com.github.cb372.util.process.StreamProcessing.consume;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.equalTo;
@@ -102,7 +103,7 @@ public class ExternalProcessTest {
 
     @Test
     public void canHandleBinaryStdinAndStdout() throws IOException, InterruptedException {
-        BinaryOutputCollectingExternalProcess process = Command.parse("src/test/resources/roundtrip-binary.sh")
+        BinaryOutputCollectingExternalProcess process = Command.command(java().mainClass(RoundtripBinaryData.class))
                 .processStdOut(consume().asBinary())
                 .collectStdOut()
                 .start();
