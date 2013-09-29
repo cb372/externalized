@@ -11,10 +11,12 @@ ExternalProcess process = Command.parse("myscript.sh -a -b -c foo bar")
         .withEnvVar("WIBBLE", "wobble") // add environment variables to the process's environment
         .withWorkingDirectory(new File("/tmp")) // set the working directory
         .processStdOut(consume()
+                .asText()
                 .withCharset("UTF-8")
                 .pipingToStdOut() // pipe process's stdout to our own stdout
         )
         .processStdErr(consume()
+                .asText()
                 .withCharset("UTF-8")
                 .withLogging(usingLogger(myErrorLogger).atErrorLevel().withPrefix("Error in script!! - "))
         )
@@ -38,6 +40,24 @@ You can easily provide your own custom listeners. Just write an implementation o
 ````java
 ExternalProcess process = Command.parse("foo bar baz")
         .processStdOut(consume().withListener(myCustomListener))
+        .start();
+````
+
+### Binary I/O
+
+If you need to communicate with an external process using raw bytes, à la ImageMagick, you can collect stdout as binary:
+
+````java
+BinaryOutputCollectingExternalProcess process = command("/usr/local/ImageMagick/bin/convert")
+        .collectStdOut().asBinary()
+        .start();
+````
+
+If you need to more complex processing of binary output, or you're worried about OutOfMemory problems, write your own custom listener and use it as follows:
+
+````java
+ExternalProcess process = command("...")
+        .processStdOut(consume().asBinary().withBufferSize(2048).withListener(myCustomListener))
         .start();
 ````
 
