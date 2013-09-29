@@ -5,8 +5,7 @@ import com.github.cb372.util.stream.collector.TextOutputCollector;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public interface TextCollectingExternalProcess extends ExternalProcess, TextOutputCollector {
-}
+public interface TextCollectingExternalProcess extends ExternalProcess, TextOutputCollector {}
 
 class TextCollectingJavaLangProcessWrapper extends JavaLangProcessWrapper implements TextCollectingExternalProcess {
     private final TextOutputCollector textOutputCollector;

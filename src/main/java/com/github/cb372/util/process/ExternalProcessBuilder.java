@@ -96,7 +96,7 @@ public class ExternalProcessBuilder<T extends ExternalProcessBuilder<T>> {
 
     /**
      * <p>
-     * Collect all data that the process sends to stdout, as a list of Strings.
+     * Collect all data that the process sends to stdout.
      * </p>
      * <p>
      * If you set this option, you can access this data by calling
@@ -146,6 +146,19 @@ public class ExternalProcessBuilder<T extends ExternalProcessBuilder<T>> {
                     processBuilder, stderrProcessingThreadBuilder, collectStdOut, byteStreamProcessingThreadBuilder);
         }
 
+        /**
+         * Collect stdout output as binary data.
+         * @return builder
+         */
+        public BinaryStdOut asBinary() {
+            return processStdOut(consume().asBinary());
+        }
+
+        /**
+         * Start the process.
+         * @return the started process
+         * @throws IOException if the process failed to start
+         */
         public TextCollectingExternalProcess start() throws IOException {
             return processStdOut(consume().asText()).start();
         }

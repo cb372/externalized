@@ -1,4 +1,4 @@
-package com.github.cb372.util.stream;
+package com.github.cb372.util.stream.processor;
 
 import com.github.cb372.util.stream.listener.text.CharStreamListener;
 import org.junit.Test;

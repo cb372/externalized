@@ -8,8 +8,7 @@ import java.util.concurrent.TimeUnit;
  * Author: chris
  * Created: 9/29/13
  */
-public interface BinaryOutputCollectingExternalProcess extends ExternalProcess, BinaryOutputCollector {
-}
+public interface BinaryOutputCollectingExternalProcess extends ExternalProcess, BinaryOutputCollector {}
 
 class BinaryOutputCollectingJavaLangProcessWrapper extends JavaLangProcessWrapper
                                                    implements BinaryOutputCollectingExternalProcess {

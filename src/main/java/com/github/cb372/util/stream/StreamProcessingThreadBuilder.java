@@ -4,6 +4,8 @@ import com.github.cb372.util.stream.listener.binary.ByteStreamListener;
 import com.github.cb372.util.stream.listener.text.CharStreamListener;
 import com.github.cb372.util.stream.listener.text.LoggingListener;
 import com.github.cb372.util.stream.listener.text.PipingListener;
+import com.github.cb372.util.stream.processor.ByteStreamProcessor;
+import com.github.cb372.util.stream.processor.CharStreamProcessor;
 
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -102,7 +104,7 @@ public interface StreamProcessingThreadBuilder {
 
         @Override
         public Thread build(InputStream stream) {
-            StreamProcessor streamProcessor = new ByteStreamProcessor(stream, listeners, bufferSize);
+            StreamProcessor streamProcessor = new ByteStreamProcessor(stream, bufferSize, listeners);
             return build(streamProcessor);
         }
     }

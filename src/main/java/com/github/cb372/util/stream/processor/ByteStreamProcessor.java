@@ -1,9 +1,11 @@
-package com.github.cb372.util.stream;
+package com.github.cb372.util.stream.processor;
 
+import com.github.cb372.util.stream.StreamProcessor;
 import com.github.cb372.util.stream.listener.binary.ByteStreamListener;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -15,10 +17,14 @@ public class ByteStreamProcessor implements StreamProcessor {
     private final List<ByteStreamListener> listeners;
     private final byte[] buffer;
 
-    public ByteStreamProcessor(InputStream stream, List<ByteStreamListener> listeners, int bufferSize) {
+    public ByteStreamProcessor(InputStream stream, int bufferSize, List<ByteStreamListener> listeners) {
         this.stream = stream;
-        this.listeners = listeners;
         this.buffer = new byte[bufferSize];
+        this.listeners = listeners;
+    }
+
+    public ByteStreamProcessor(InputStream stream, int bufferSize, ByteStreamListener... listeners) {
+        this(stream, bufferSize, Arrays.asList(listeners));
     }
 
     @Override

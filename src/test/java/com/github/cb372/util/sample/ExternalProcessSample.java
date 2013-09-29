@@ -1,5 +1,6 @@
 package com.github.cb372.util.sample;
 
+import com.github.cb372.util.process.BinaryOutputCollectingExternalProcess;
 import com.github.cb372.util.process.ExternalProcess;
 import com.github.cb372.util.process.PrintHello;
 import com.github.cb372.util.process.TextCollectingExternalProcess;
@@ -90,5 +91,16 @@ public class ExternalProcessSample {
                 .withArg("world"))
                 .start();
 
+    }
+
+    public void example4() throws IOException, InterruptedException {
+        /*
+         * Example 4: Collecting binary output from a process's stdout
+         */
+        BinaryOutputCollectingExternalProcess process = command("/usr/local/ImageMagick/bin/convert")
+                .collectStdOut().asBinary()
+                .start();
+
+        byte[] result = process.getBinaryOutput();
     }
 }
