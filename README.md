@@ -39,7 +39,7 @@ You can easily provide your own custom listeners. Just write an implementation o
 
 ````java
 ExternalProcess process = Command.parse("foo bar baz")
-        .processStdOut(consume().withListener(myCustomListener))
+        .processStdOut(consume().asText().withListener(myCustomListener))
         .start();
 ````
 
@@ -88,7 +88,7 @@ Available on Maven central.
 <dependency>
   <groupId>com.github.cb372</groupId>
   <artifactId>externalized</artifactId>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
 </dependency>
 ````
 
