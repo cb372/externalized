@@ -1,3 +1,18 @@
+0.3.0 (2013/09/29)
+----
+
+Features:
+
+* Added support for processing stdout/stderr as binary rather than text
+
+Breaking changes:
+
+* The DSL for processing stdout/stderr has changed slightly.
+    * Before: `processStdOut(consume().withListener(...))`
+    * After: `processStdOut(consume().asText().withListener(...))`
+
+* Class name change: `ExternalProcessBuilder` used to return an `ExternalProcess`. It now returns a `TextCollectingExternalProcess`.
+
 0.2.0 (2013/04/13)
 ----
 
