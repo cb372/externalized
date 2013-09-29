@@ -1,6 +1,6 @@
 package com.github.cb372.util.process;
 
-import com.github.cb372.util.stream.listener.LoggingListener;
+import com.github.cb372.util.stream.listener.text.LoggingListener;
 import org.slf4j.Logger;
 
 /**

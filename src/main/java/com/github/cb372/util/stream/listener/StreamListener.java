@@ -10,18 +10,6 @@ package com.github.cb372.util.stream.listener;
 public interface StreamListener {
 
     /**
-     * Called once for every character of output, including newline characters.
-     * @param c character
-     */
-    public void onChar(char c);
-
-    /**
-     * Called once for every line of output.
-     * @param line line (does not include newline characters)
-     */
-    public void onLine(String line);
-
-    /**
      * Called when the output has finished.
      */
     void onEndOfStream();

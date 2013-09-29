@@ -18,7 +18,7 @@ public final class Command {
      * @param commandLine A full command line, e.g. "myscript.sh foo bar"
      * @return a process builder
      */
-    public static ExternalProcessBuilder parse(String commandLine) {
+    public static ExternalProcessBuilder.UnspecifiedStdOut parse(String commandLine) {
         return command(commandLine.split(" "));
     }
 
@@ -28,8 +28,8 @@ public final class Command {
      * @param command a command and its arguments, e.g. ["myscript.sh", "foo, "bar"]
      * @return a process builder
      */
-    public static ExternalProcessBuilder command(String... command) {
-        return new ExternalProcessBuilder(new ProcessBuilder(command));
+    public static ExternalProcessBuilder.UnspecifiedStdOut command(String... command) {
+        return new ExternalProcessBuilder.UnspecifiedStdOut(new ProcessBuilder(command));
     }
 
     /**
@@ -38,8 +38,8 @@ public final class Command {
      * @param command a command and its arguments, e.g. ["myscript.sh", "foo, "bar"]
      * @return a process builder
      */
-    public static ExternalProcessBuilder command(List<String> command) {
-        return new ExternalProcessBuilder(new ProcessBuilder(command));
+    public static ExternalProcessBuilder.UnspecifiedStdOut command(List<String> command) {
+        return new ExternalProcessBuilder.UnspecifiedStdOut(new ProcessBuilder(command));
     }
 
     /**
@@ -48,8 +48,8 @@ public final class Command {
      * @param processBuilderProvider provide
      * @return a process builder
      */
-    public static ExternalProcessBuilder command(ProcessBuilderProvider processBuilderProvider) {
-        return new ExternalProcessBuilder(processBuilderProvider.getProcessBuilder());
+    public static ExternalProcessBuilder.UnspecifiedStdOut command(ProcessBuilderProvider processBuilderProvider) {
+        return new ExternalProcessBuilder.UnspecifiedStdOut(processBuilderProvider.getProcessBuilder());
     }
 
 }

@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
  * Author: chris
  * Created: 4/6/13
  */
-public interface OutputCollector {
+public interface TextOutputCollector {
 
     /**
      * Get all data sent to the stream, as a list of strings.
@@ -17,7 +17,7 @@ public interface OutputCollector {
      * @return lines of output
      * @throws InterruptedException
      */
-    public List<String> getOutput() throws InterruptedException;
+    public List<String> getTextOutput() throws InterruptedException;
 
     /**
      *
@@ -31,6 +31,6 @@ public interface OutputCollector {
      * @return lines of output
      * @throws InterruptedException
      */
-    public List<String> getOutput(long time, TimeUnit timeUnit) throws InterruptedException;
+    public List<String> getTextOutput(long time, TimeUnit timeUnit) throws InterruptedException;
 
 }

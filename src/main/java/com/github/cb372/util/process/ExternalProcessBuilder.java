@@ -1,25 +1,43 @@
 package com.github.cb372.util.process;
 
-import com.github.cb372.util.stream.collector.DummyOutputCollector;
-import com.github.cb372.util.stream.collector.OutputCollector;
+import com.github.cb372.util.stream.collector.BinaryOutputCollector;
+import com.github.cb372.util.stream.collector.DummyBinaryOutputCollector;
+import com.github.cb372.util.stream.collector.DummyTextOutputCollector;
+import com.github.cb372.util.stream.collector.TextOutputCollector;
 import com.github.cb372.util.stream.StreamProcessingThreadBuilder;
-import com.github.cb372.util.stream.listener.OutputCollectingListener;
+import com.github.cb372.util.stream.listener.binary.BinaryOutputCollectingListener;
+import com.github.cb372.util.stream.listener.text.TextOutputCollectingListener;
 
 import java.io.File;
 import java.io.IOException;
+
+import static com.github.cb372.util.process.StreamProcessing.consume;
+import static com.github.cb372.util.stream.StreamProcessingThreadBuilder.ByteStreamProcessingThreadBuilder;
+import static com.github.cb372.util.stream.StreamProcessingThreadBuilder.CharStreamProcessingThreadBuilder;
 
 /**
  * Author: chris
  * Created: 4/5/13
  */
-public final class ExternalProcessBuilder {
-    private final ProcessBuilder processBuilder;
-    private StreamProcessingThreadBuilder stdoutGobblerThreadBuilder = new StreamProcessingThreadBuilder();
-    private StreamProcessingThreadBuilder stderrGobblerThreadBuilder = new StreamProcessingThreadBuilder();
-    private boolean collectStdOut = false;
+public class ExternalProcessBuilder<T extends ExternalProcessBuilder<T>> {
+    private final Class<T> subclass;
 
-    protected ExternalProcessBuilder(ProcessBuilder processBuilder) {
+    protected final ProcessBuilder processBuilder;
+    protected StreamProcessingThreadBuilder stderrProcessingThreadBuilder = new CharStreamProcessingThreadBuilder();
+    protected boolean collectStdOut = false;
+
+    protected ExternalProcessBuilder(Class<T> subclass, ProcessBuilder processBuilder) {
+        this.subclass = subclass;
         this.processBuilder = processBuilder;
+    }
+
+    protected ExternalProcessBuilder(Class<T> subclass,
+                                     ProcessBuilder processBuilder,
+                                     StreamProcessingThreadBuilder stderrProcessingThreadBuilder,
+                                     boolean collectStdOut) {
+        this(subclass, processBuilder);
+        this.stderrProcessingThreadBuilder = stderrProcessingThreadBuilder;
+        this.collectStdOut = collectStdOut;
     }
 
     /**
@@ -27,9 +45,9 @@ public final class ExternalProcessBuilder {
      * @param dir working directory
      * @return builder
      */
-    public ExternalProcessBuilder withWorkingDirectory(File dir) {
+    public T withWorkingDirectory(File dir) {
         processBuilder.directory(dir);
-        return this;
+        return subclass.cast(this);
     }
 
     /**
@@ -37,9 +55,9 @@ public final class ExternalProcessBuilder {
      * By default the process will inherit the parent's environment.
      * @return builder
      */
-    public ExternalProcessBuilder clearEnvironment() {
+    public T clearEnvironment() {
         processBuilder.environment().clear();
-        return this;
+        return subclass.cast(this);
     }
 
     /**
@@ -49,9 +67,9 @@ public final class ExternalProcessBuilder {
      * @param value value
      * @return builder
      */
-    public ExternalProcessBuilder withEnvVar(String key, String value) {
+    public T withEnvVar(String key, String value) {
         processBuilder.environment().put(key, value);
-        return this;
+        return subclass.cast(this);
     }
 
     /**
@@ -60,20 +78,9 @@ public final class ExternalProcessBuilder {
      *
      * @return builder
      */
-    public ExternalProcessBuilder redirectingErrorStream() {
+    public T redirectingErrorStream() {
         processBuilder.redirectErrorStream(true);
-        return this;
-    }
-
-    /**
-     * Set options for how to handle the process's stdout.
-     * By default the stream will be silently consumed and discarded.
-     * @param streamProcessingThreadBuilder
-     * @return builder
-     */
-    public ExternalProcessBuilder processStdOut(StreamProcessingThreadBuilder streamProcessingThreadBuilder) {
-        this.stdoutGobblerThreadBuilder = streamProcessingThreadBuilder;
-        return this;
+        return subclass.cast(this);
     }
 
     /**
@@ -82,17 +89,19 @@ public final class ExternalProcessBuilder {
      * @param streamProcessingThreadBuilder
      * @return builder
      */
-    public ExternalProcessBuilder processStdErr(StreamProcessingThreadBuilder streamProcessingThreadBuilder) {
-        this.stderrGobblerThreadBuilder = streamProcessingThreadBuilder;
-        return this;
+    public T processStdErr(StreamProcessingThreadBuilder streamProcessingThreadBuilder) {
+        this.stderrProcessingThreadBuilder = streamProcessingThreadBuilder;
+        return subclass.cast(this);
     }
 
     /**
      * <p>
-     * Collect all data that the process sends to stdout.
+     * Collect all data that the process sends to stdout, as a list of Strings.
      * </p>
      * <p>
-     * If you set this option, you can access this data by calling {@link com.github.cb372.util.process.ExternalProcess#getOutput()}
+     * If you set this option, you can access this data by calling
+     * {@link TextCollectingExternalProcess#getTextOutput()} or
+     * {@link BinaryOutputCollectingExternalProcess#getBinaryOutput()}
      * after the process has completed.
      * </p>
      * <p>
@@ -105,39 +114,127 @@ public final class ExternalProcessBuilder {
      *
      * @return builder
      */
-    public ExternalProcessBuilder collectStdOut() {
+    public T collectStdOut() {
         this.collectStdOut = true;
-        return this;
+        return subclass.cast(this);
     }
 
-    /**
-     * Start the process.
-     * @return the started process
-     * @throws IOException if the process failed to start
-     */
-    public ExternalProcess start() throws IOException {
-        // Start the process
-        Process process = processBuilder.start();
-
-        OutputCollector outputCollector;
-        if (collectStdOut) {
-            OutputCollectingListener outputCollectingListener = new OutputCollectingListener();
-            stdoutGobblerThreadBuilder.withListener(outputCollectingListener);
-            outputCollector = outputCollectingListener;
-        } else {
-            outputCollector = new DummyOutputCollector();
+    public static final class UnspecifiedStdOut extends ExternalProcessBuilder<UnspecifiedStdOut> {
+        public UnspecifiedStdOut(ProcessBuilder processBuilder) {
+            super(UnspecifiedStdOut.class, processBuilder);
         }
 
-        // Start the output stream processing threads
-        Thread stdoutGobblerThread = stdoutGobblerThreadBuilder.build(process.getInputStream());
-        stdoutGobblerThread.start();
-        if (!processBuilder.redirectErrorStream()) {
-            Thread stderrGobblerThread = stderrGobblerThreadBuilder.build(process.getErrorStream());
-            stderrGobblerThread.start();
+        /**
+         * Set options for how to handle the process's stdout.
+         * By default the stream will be silently consumed and discarded.
+         * @param charStreamProcessingThreadBuilder
+         * @return builder
+         */
+        public TextStdOut processStdOut(CharStreamProcessingThreadBuilder charStreamProcessingThreadBuilder) {
+            return new TextStdOut(
+                    processBuilder, stderrProcessingThreadBuilder, collectStdOut, charStreamProcessingThreadBuilder);
         }
 
-        // return the process
-        return new JavaLangProcessWrapper(process, outputCollector);
+        /**
+         * Set options for how to handle the process's stdout.
+         * By default the stream will be silently consumed and discarded.
+         * @param byteStreamProcessingThreadBuilder
+         * @return builder
+         */
+        public BinaryStdOut processStdOut(ByteStreamProcessingThreadBuilder byteStreamProcessingThreadBuilder) {
+            return new BinaryStdOut(
+                    processBuilder, stderrProcessingThreadBuilder, collectStdOut, byteStreamProcessingThreadBuilder);
+        }
+
+        public TextCollectingExternalProcess start() throws IOException {
+            return processStdOut(consume().asText()).start();
+        }
+    }
+
+    public static final class TextStdOut extends ExternalProcessBuilder<TextStdOut> {
+        private CharStreamProcessingThreadBuilder stdoutProcessingThreadBuilder;
+
+        protected TextStdOut(ProcessBuilder processBuilder,
+                               StreamProcessingThreadBuilder stderrProcessingThreadBuilder,
+                               boolean collectStdOut,
+                               CharStreamProcessingThreadBuilder stdoutProcessingThreadBuilder) {
+            super(TextStdOut.class, processBuilder, stderrProcessingThreadBuilder, collectStdOut);
+            this.stdoutProcessingThreadBuilder = stdoutProcessingThreadBuilder;
+        }
+
+        /**
+         * Start the process.
+         * @return the started process
+         * @throws IOException if the process failed to start
+         */
+        public TextCollectingExternalProcess start() throws IOException {
+            // Start the process
+            Process process = processBuilder.start();
+
+            TextOutputCollector outputCollector;
+            if (collectStdOut) {
+                TextOutputCollectingListener outputCollectingListener = new TextOutputCollectingListener();
+                stdoutProcessingThreadBuilder.withListener(outputCollectingListener);
+                outputCollector = outputCollectingListener;
+            } else {
+                outputCollector = new DummyTextOutputCollector();
+            }
+
+            // Start the output stream processing threads
+            Thread stdoutGobblerThread = stdoutProcessingThreadBuilder.build(process.getInputStream());
+            stdoutGobblerThread.start();
+            if (!processBuilder.redirectErrorStream()) {
+                Thread stderrGobblerThread = stderrProcessingThreadBuilder.build(process.getErrorStream());
+                stderrGobblerThread.start();
+            }
+
+            // return the process
+            return new TextCollectingJavaLangProcessWrapper(process, outputCollector);
+        }
+
+    }
+
+    public static final class BinaryStdOut extends ExternalProcessBuilder<BinaryStdOut> {
+        private ByteStreamProcessingThreadBuilder stdoutProcessingThreadBuilder;
+
+        protected BinaryStdOut(ProcessBuilder processBuilder,
+                               StreamProcessingThreadBuilder stderrProcessingThreadBuilder,
+                               boolean collectStdOut,
+                               ByteStreamProcessingThreadBuilder stdoutProcessingThreadBuilder) {
+            super(BinaryStdOut.class, processBuilder, stderrProcessingThreadBuilder, collectStdOut);
+            this.stdoutProcessingThreadBuilder = stdoutProcessingThreadBuilder;
+        }
+
+        /**
+         * Start the process.
+         * @return the started process
+         * @throws IOException if the process failed to start
+         */
+        public BinaryOutputCollectingExternalProcess start() throws IOException {
+            // Start the process
+            Process process = processBuilder.start();
+
+            BinaryOutputCollector outputCollector;
+            if (collectStdOut) {
+                BinaryOutputCollectingListener outputCollectingListener = new BinaryOutputCollectingListener();
+                stdoutProcessingThreadBuilder.withListener(outputCollectingListener);
+                outputCollector = outputCollectingListener;
+            } else {
+                outputCollector = new DummyBinaryOutputCollector();
+            }
+
+            // Start the output stream processing threads
+            Thread stdoutGobblerThread = stdoutProcessingThreadBuilder.build(process.getInputStream());
+            stdoutGobblerThread.start();
+            if (!processBuilder.redirectErrorStream()) {
+                Thread stderrGobblerThread = stderrProcessingThreadBuilder.build(process.getErrorStream());
+                stderrGobblerThread.start();
+            }
+
+            // return the process
+            return new BinaryOutputCollectingJavaLangProcessWrapper(process, outputCollector);
+        }
+
     }
 
 }

@@ -1,4 +1,4 @@
-package com.github.cb372.util.stream.listener;
+package com.github.cb372.util.stream.listener.text;
 
 /**
  * A stream listener that ignores individual characters
@@ -7,7 +7,7 @@ package com.github.cb372.util.stream.listener;
  * Author: chris
  * Created: 4/5/13
  */
-public abstract class StreamLineListener implements StreamListener {
+public abstract class StreamLineListener implements CharStreamListener {
 
     @Override
     public final void onChar(char c) {

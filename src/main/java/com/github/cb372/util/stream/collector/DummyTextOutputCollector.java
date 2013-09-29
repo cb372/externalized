@@ -8,15 +8,15 @@ import java.util.concurrent.TimeUnit;
  * Author: chris
  * Created: 4/6/13
  */
-public class DummyOutputCollector implements OutputCollector {
+public class DummyTextOutputCollector implements TextOutputCollector {
 
     @Override
-    public List<String> getOutput() throws InterruptedException {
+    public List<String> getTextOutput() throws InterruptedException {
         return Collections.emptyList();
     }
 
     @Override
-    public List<String> getOutput(long time, TimeUnit timeUnit) throws InterruptedException {
+    public List<String> getTextOutput(long time, TimeUnit timeUnit) throws InterruptedException {
         return Collections.emptyList();
     }
 

@@ -17,16 +17,16 @@ public class JavaCommandTest {
 
     @Test
     public void canRunAJavaClassInASeparateProcess() throws IOException, InterruptedException {
-        ExternalProcess process = command(java().mainClass(PrintHello.class))
+        TextCollectingExternalProcess process = command(java().mainClass(PrintHello.class))
                 .collectStdOut()
                 .start();
 
-        assertThat(process.getOutput().get(0), is("hello"));
+        assertThat(process.getTextOutput().get(0), is("hello"));
     }
 
     @Test
     public void argumentsAndSysPropsArePassedToProcess() throws IOException, InterruptedException {
-        ExternalProcess process = command(java()
+        TextCollectingExternalProcess process = command(java()
                 .withSysProp("foo", "bar")
                 .mainClass(PrintSysPropAndArgs.class)
                 .withArg("hello")
@@ -34,8 +34,8 @@ public class JavaCommandTest {
                 .collectStdOut()
                 .start();
 
-        assertThat(process.getOutput().get(0), is("bar"));
-        assertThat(process.getOutput().get(1), is("hello"));
-        assertThat(process.getOutput().get(2), is("world"));
+        assertThat(process.getTextOutput().get(0), is("bar"));
+        assertThat(process.getTextOutput().get(1), is("hello"));
+        assertThat(process.getTextOutput().get(2), is("world"));
     }
 }

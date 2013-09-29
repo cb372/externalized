@@ -1,6 +1,6 @@
 package com.github.cb372.util.stream;
 
-import com.github.cb372.util.stream.listener.StreamListener;
+import com.github.cb372.util.stream.listener.text.CharStreamListener;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -18,7 +18,7 @@ import static org.junit.Assert.assertThat;
  * Author: chris
  * Created: 4/5/13
  */
-public class StreamProcessorTest {
+public class CharStreamProcessorTest {
 
     Charset utf8 = Charset.forName("UTF-8");
 
@@ -26,7 +26,7 @@ public class StreamProcessorTest {
     public void handlesEmptyStream() throws IOException {
         InputStream stream = new ByteArrayInputStream(new byte[0]);
         MockListener listener = new MockListener();
-        new StreamProcessor(stream, utf8, listener).gobble();
+        new CharStreamProcessor(stream, utf8, listener).run();
 
         assertThat(listener.calls.size(), is(1));
         assertThat(listener.calls.get(0), is("EOS"));
@@ -37,7 +37,7 @@ public class StreamProcessorTest {
         String text = "abc\ndef";
         InputStream stream = new ByteArrayInputStream(text.getBytes(utf8));
         MockListener listener = new MockListener();
-        new StreamProcessor(stream, utf8, listener).gobble();
+        new CharStreamProcessor(stream, utf8, listener).run();
 
         assertThat(listener.calls.get(0), is("a"));
         assertThat(listener.calls.get(1), is("b"));
@@ -56,7 +56,7 @@ public class StreamProcessorTest {
         String text = "あいう\nかきく";
         InputStream stream = new ByteArrayInputStream(text.getBytes(utf8));
         MockListener listener = new MockListener();
-        new StreamProcessor(stream, utf8, listener).gobble();
+        new CharStreamProcessor(stream, utf8, listener).run();
 
         assertThat(listener.calls.get(0), is("あ"));
         assertThat(listener.calls.get(1), is("い"));
@@ -75,7 +75,7 @@ public class StreamProcessorTest {
         String text = "abc\r\ndef";
         InputStream stream = new ByteArrayInputStream(text.getBytes(utf8));
         MockListener listener = new MockListener();
-        new StreamProcessor(stream, utf8, listener).gobble();
+        new CharStreamProcessor(stream, utf8, listener).run();
 
         assertThat(listener.calls.get(0), is("a"));
         assertThat(listener.calls.get(1), is("b"));
@@ -95,7 +95,7 @@ public class StreamProcessorTest {
         String text = "a\n\n\nb\n\n";
         InputStream stream = new ByteArrayInputStream(text.getBytes(utf8));
         MockListener listener = new MockListener();
-        new StreamProcessor(stream, utf8, listener).gobble();
+        new CharStreamProcessor(stream, utf8, listener).run();
 
         assertThat(listener.calls.get(0), is("a"));
         assertThat(listener.calls.get(1), is("\n"));
@@ -112,7 +112,7 @@ public class StreamProcessorTest {
         assertThat(listener.calls.get(12), is("EOS"));
     }
 
-    static class MockListener implements StreamListener {
+    static class MockListener implements CharStreamListener {
         private List<String> calls = new ArrayList<String>();
 
         @Override

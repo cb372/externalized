@@ -8,8 +8,8 @@ import com.github.cb372.util.stream.StreamProcessingThreadBuilder;
  */
 public final class StreamProcessing {
 
-    public static StreamProcessingThreadBuilder consume() {
-        return new StreamProcessingThreadBuilder();
+    public static StreamProcessingThreadBuilder.ChooseStreamType consume() {
+        return new StreamProcessingThreadBuilder.ChooseStreamType();
     }
 
 }

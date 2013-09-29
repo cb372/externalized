@@ -1,8 +1,5 @@
 package com.github.cb372.util.stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 
 /**
@@ -21,7 +18,7 @@ public final class StreamProcessingRunnable implements Runnable {
     @Override
     public void run() {
         try {
-            streamProcessor.gobble();
+            streamProcessor.run();
         } catch (IOException e) {
             exceptionHandler.handle(e);
         }

@@ -1,4 +1,4 @@
-package com.github.cb372.util.stream.listener;
+package com.github.cb372.util.stream.listener.text;
 
 import java.io.PrintStream;
 
@@ -8,7 +8,7 @@ import java.io.PrintStream;
  * Author: chris
  * Created: 4/5/13
  */
-public final class PipingListener implements StreamListener {
+public final class PipingListener implements CharStreamListener {
     private final PrintStream out;
 
     public PipingListener(PrintStream out) {

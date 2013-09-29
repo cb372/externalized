@@ -1,6 +1,6 @@
 package com.github.cb372.util.process;
 
-import com.github.cb372.util.stream.collector.OutputCollector;
+import com.github.cb372.util.stream.collector.TextOutputCollector;
 
 import java.io.OutputStream;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
  * Author: chris
  * Created: 4/5/13
  */
-public interface ExternalProcess extends OutputCollector {
+public interface ExternalProcess {
 
     public OutputStream getStdIn();
 
@@ -26,11 +26,9 @@ public interface ExternalProcess extends OutputCollector {
 
 class JavaLangProcessWrapper implements ExternalProcess {
     private final Process process;
-    private final OutputCollector outputCollector;
 
-    JavaLangProcessWrapper(Process process, OutputCollector outputCollector) {
+    protected JavaLangProcessWrapper(Process process) {
         this.process = process;
-        this.outputCollector = outputCollector;
     }
 
     @Override
@@ -51,39 +49,6 @@ class JavaLangProcessWrapper implements ExternalProcess {
     @Override
     public void destroy() {
         process.destroy();
-    }
-
-    /**
-     * Get all data that was sent to the process's stdout.
-     *
-     * Note that this method will block until the process completes and its stdout has been exhausted.
-     *
-     * Will return an empty list unless you explicitly called {@link com.github.cb372.util.process.ExternalProcessBuilder#collectStdOut()}
-     * when building the process.
-     *
-     * @return stdout output
-     * @throws InterruptedException
-     */
-    @Override
-    public List<String> getOutput() throws InterruptedException {
-        return outputCollector.getOutput();
-    }
-
-    /**
-     * Get all data that was sent to the process's stdout.
-     *
-     * Note that this method will block until the process completes and its stdout has been exhausted,
-     * or until a timeout occurs.
-     *
-     * Will return an empty list unless you explicitly called {@link com.github.cb372.util.process.ExternalProcessBuilder#collectStdOut()}
-     * when building the process.
-     *
-     * @return stdout output
-     * @throws InterruptedException
-     */
-    @Override
-    public List<String> getOutput(long time, TimeUnit timeUnit) throws InterruptedException {
-        return outputCollector.getOutput(time, timeUnit);
     }
 
 }

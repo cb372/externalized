@@ -2,6 +2,7 @@ package com.github.cb372.util.sample;
 
 import com.github.cb372.util.process.ExternalProcess;
 import com.github.cb372.util.process.PrintHello;
+import com.github.cb372.util.process.TextCollectingExternalProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,11 +34,13 @@ public class ExternalProcessSample {
                 .withEnvVar("FUNKY", "monkey")
                 .withWorkingDirectory(new File("/tmp")) // set the working directory
                 .processStdOut(consume()
+                        .asText()
                         .withCharset("UTF-8")
                         .pipingToStdOut() // pipe all process output to our own stdout/stderr
                         .withLogging(usingLogger(myLogger).atInfoLevel().withPrefix("Script output: ")) // log process output
                 )
                 .processStdErr(consume()
+                        .asText()
                         .withCharset("UTF-8")
                         .withLogging(usingLogger(myErrorLogger).atErrorLevel().withPrefix("Error in script!! - "))
                         .withListener(new MyCustomErrorListener()) // add your own custom listeners
@@ -61,12 +64,12 @@ public class ExternalProcessSample {
          */
 
         // Run a process
-        ExternalProcess process = command("myscript.sh")
+        TextCollectingExternalProcess process = command("myscript.sh")
                 .collectStdOut()  // collect all data that the process sends to stdout
                 .start();
 
         // After the process has finished, you can access the data it sent to stdout
-        String firstLineOfOutput = process.getOutput().get(0);
+        String firstLineOfOutput = process.getTextOutput().get(0);
         if (firstLineOfOutput.equals("OK")) {
             System.out.println("Looks like the script ran fine!");
         }

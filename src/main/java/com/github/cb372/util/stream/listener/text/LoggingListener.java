@@ -1,4 +1,4 @@
-package com.github.cb372.util.stream.listener;
+package com.github.cb372.util.stream.listener.text;
 
 import org.slf4j.Logger;
 

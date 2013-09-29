@@ -1,12 +1,12 @@
 package com.github.cb372.util.sample;
 
-import com.github.cb372.util.stream.listener.StreamListener;
+import com.github.cb372.util.stream.listener.text.CharStreamListener;
 
 /**
 * Author: chris
 * Created: 4/5/13
 */
-class MyCustomErrorListener implements StreamListener {
+class MyCustomErrorListener implements CharStreamListener {
 
     @Override
     public void onChar(char c) {

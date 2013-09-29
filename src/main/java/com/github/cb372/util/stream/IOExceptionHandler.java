@@ -20,6 +20,6 @@ class ErrorLoggingIOExceptionHandler implements IOExceptionHandler {
 
     @Override
     public void handle(IOException e) {
-        logger.warn("StreamProcessor threw an exception", e);
+        logger.warn("CharStreamProcessor threw an exception", e);
     }
 }
