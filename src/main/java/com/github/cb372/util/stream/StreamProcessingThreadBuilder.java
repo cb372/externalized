@@ -114,6 +114,7 @@ public interface StreamProcessingThreadBuilder {
 
         private final List<CharStreamListener> listeners = new ArrayList<CharStreamListener>();
         private Charset charset = Charset.forName("UTF-8");
+        private String prefix = "";
 
         public CharStreamProcessingThreadBuilder() {
             super(CharStreamProcessingThreadBuilder.class);
@@ -126,6 +127,11 @@ public interface StreamProcessingThreadBuilder {
 
         public CharStreamProcessingThreadBuilder withCharset(String charset) {
             return withCharset(Charset.forName(charset));
+        }
+
+        public CharStreamProcessingThreadBuilder withPrefix(String prefix){
+            this.prefix = prefix;
+            return this;
         }
 
         public CharStreamProcessingThreadBuilder withListener(CharStreamListener listener) {
@@ -154,7 +160,7 @@ public interface StreamProcessingThreadBuilder {
 
         @Override
         public Thread build(InputStream inputStream) {
-            StreamProcessor streamProcessor = new CharStreamProcessor(inputStream, charset, listeners);
+            StreamProcessor streamProcessor = new CharStreamProcessor(inputStream, charset, prefix, listeners);
             return build(streamProcessor);
         }
     }

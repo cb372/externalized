@@ -1,3 +1,10 @@
+dev (2014/11/16)
+----
+
+Features:
+
+* Added ability to prefix all stdout/stderr output with a custom string (rodionmoiseev)
+
 0.3.0 (2013/09/29)
 ----
 

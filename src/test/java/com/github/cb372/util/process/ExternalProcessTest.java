@@ -8,14 +8,12 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import static com.github.cb372.util.process.Java.java;
 import static com.github.cb372.util.process.StreamProcessing.consume;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -36,17 +34,17 @@ public class ExternalProcessTest {
         TextOutputCollectingListener stderrListener = new TextOutputCollectingListener();
 
         ExternalProcess process = Command.parse("src/test/resources/myscript.sh")
-                .processStdOut(consume().asText().withListener(stdoutListener))
-                .processStdErr(consume().asText().withListener(stderrListener))
+                .processStdOut(consume().asText().withListener(stdoutListener).withPrefix("out>"))
+                .processStdErr(consume().asText().withListener(stderrListener).withPrefix("err>"))
                 .start();
 
         process.waitFor();
         assertThat(stdoutListener.awaitOutputCollection(1, TimeUnit.SECONDS), is(true));
         assertThat(stderrListener.awaitOutputCollection(1, TimeUnit.SECONDS), is(true));
 
-        assertThat(stdoutListener.getTextOutput().get(0), equalTo("hello"));
-        assertThat(stdoutListener.getTextOutput().get(1), equalTo("world"));
-        assertThat(stderrListener.getTextOutput().get(0), equalTo("oh noes"));
+        assertThat(stdoutListener.getTextOutput().get(0), equalTo("out>hello"));
+        assertThat(stdoutListener.getTextOutput().get(1), equalTo("out>world"));
+        assertThat(stderrListener.getTextOutput().get(0), equalTo("err>oh noes"));
     }
 
     @Test
