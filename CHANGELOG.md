@@ -1,9 +1,13 @@
-dev (2014/11/16)
+0.4.0 (2014/11/16)
 ----
 
 Features:
 
 * Added ability to prefix all stdout/stderr output with a custom string (rodionmoiseev)
+
+Breaking changes:
+
+* Ended support for Java 6, as it is EOL.
 
 0.3.0 (2013/09/29)
 ----
