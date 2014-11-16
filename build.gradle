@@ -6,6 +6,9 @@ apply plugin: 'signing'
 group = "com.github.cb372"
 version = "0.4.0-SNAPSHOT"
 
+// Compile with Java 7 support
+sourceCompatibility = "1.7"
+
 repositories {
   mavenCentral()
 }
