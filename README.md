@@ -95,7 +95,7 @@ Available on Maven central.
 
 ## Dependencies
 
-* Java 6 or newer
+* Java 7 or newer
 * slf4j API
 
 ## Licence
