@@ -6,4 +6,5 @@ out
 *.ipr
 *.iml
 *.iws
-
+gradle
+gradlew*
