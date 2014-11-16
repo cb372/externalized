@@ -59,6 +59,26 @@ public final class LoggingListener extends StreamLineListener {
             return this;
         }
 
+        /**
+         * Note that you can also call
+         * {@link com.github.cb372.util.stream.StreamProcessingThreadBuilder.CharStreamProcessingThreadBuilder#withPrefix(String)}
+         * to apply a line prefix globally, not just for logging.
+         * In that case the prefix will be included in the data sent to all listeners.
+         *
+         * e.g.
+         *
+         * <pre>
+         *     ExternalProcess process = parse("echo hello")
+         *          .processStdOut(consume()
+         *              .asText()
+         *              .withPrefix("Script output: ") // this prefix will be sent to both the logger and to stdout
+         *              .pipingToStdOut())
+         *              .withLogging(usingLogger(myLogger).atInfoLevel())
+         *          .start();
+         * </pre>
+         * Note that if you add both a global prefix and a logging prefix,
+         * they will both be applied and you will end up with 2 prefixes in your logs.
+         */
         public Builder withPrefix(String prefix) {
             this.prefix = prefix;
             return this;

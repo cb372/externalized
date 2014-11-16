@@ -37,8 +37,9 @@ public class ExternalProcessSample {
                 .processStdOut(consume()
                         .asText()
                         .withCharset("UTF-8")
+                        .withPrefix("Script output: ") // add a prefix to every line of the process's stdout
                         .pipingToStdOut() // pipe all process output to our own stdout/stderr
-                        .withLogging(usingLogger(myLogger).atInfoLevel().withPrefix("Script output: ")) // log process output
+                        .withLogging(usingLogger(myLogger).atInfoLevel()) // log process output
                 )
                 .processStdErr(consume()
                         .asText()

@@ -14,6 +14,7 @@ ExternalProcess process = Command.parse("myscript.sh -a -b -c foo bar")
                 .asText()
                 .withCharset("UTF-8")
                 .pipingToStdOut() // pipe process's stdout to our own stdout
+                .withPrefix("out>") // with "out>" prepended to every line
         )
         .processStdErr(consume()
                 .asText()
