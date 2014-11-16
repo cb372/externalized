@@ -24,66 +24,60 @@ import java.util.List;
 public final class CharStreamProcessor implements StreamProcessor {
     private final InputStream stream;
     private final Charset charset;
+    private final String linePrefix;
     private final List<CharStreamListener> listeners;
 
-    public CharStreamProcessor(InputStream stream, Charset charset, List<CharStreamListener> listeners) {
+    public CharStreamProcessor(InputStream stream, Charset charset, String linePrefix, List<CharStreamListener> listeners) {
         this.stream = stream;
         this.charset = charset;
+        this.linePrefix = linePrefix;
         this.listeners = listeners;
+    }
+
+    public CharStreamProcessor(InputStream stream, Charset charset, List<CharStreamListener> listeners) {
+        this(stream, charset, "", listeners);
     }
 
     public CharStreamProcessor(InputStream stream, Charset charset, CharStreamListener... listeners) {
         this(stream, charset, Arrays.asList(listeners));
     }
 
+    public CharStreamProcessor(InputStream stream, Charset charset, String linePrefix, CharStreamListener... listeners) {
+        this(stream, charset, linePrefix, Arrays.asList(listeners));
+    }
+
     @Override
     public void run() throws IOException {
         int c;
         StringBuilder line = new StringBuilder();
-        CharType lastSeen = CharType.Nil;
+        boolean lastWasCR = false;
+        char[] prefixChars = linePrefix.toCharArray();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(stream, charset));
         try {
             while ((c = reader.read()) != -1) {
                 char ch = (char) c;
-                if (ch == '\r') {
-                    switch (lastSeen) {
-                        case CR:
-                        case LF:
-                            // two \r in a row = an empty line
-                            // \n followed by \r = an empty line
-                            onLine(line.toString());
-                            line.setLength(0);
-                            break;
-                    }
-                    lastSeen = CharType.CR;
-                } else if (ch == '\n') {
-                    switch (lastSeen) {
-                        case LF:
-                            // two \n in a row = an empty line
-                            onLine(line.toString());
-                            line.setLength(0);
-                            break;
-                    }
-                    lastSeen = CharType.LF;
-                } else {
-                    switch (lastSeen) {
-                        case CR:
-                        case LF:
-                            // start of new line
-                            onLine(line.toString());
-                            line.setLength(0);
-                            break;
-                    }
-                    line.append(ch);
-                    lastSeen = CharType.Normal;
+                if (line.length() == 0) {
+                    outputPrefix(prefixChars, line);
                 }
-                // pass character to listener callbacks
+                switch (ch) {
+                    case '\r':
+                        onLine(line);
+                        break;
+                    case '\n':
+                        if (!lastWasCR) {
+                            onLine(line);
+                        }
+                        break;
+                    default:
+                        line.append(ch);
+                }
                 onChar(ch);
+                lastWasCR = ch == '\r';
             }
             // drain the last line
-            if (lastSeen != CharType.Nil) {
-                onLine(line.toString());
+            if (line.length() > 0) {
+                onLine(line);
             }
             // tell listeners that it is EOS
             onEOS();
@@ -92,12 +86,19 @@ public final class CharStreamProcessor implements StreamProcessor {
         }
     }
 
-    private enum CharType { Nil, Normal, CR, LF }
+    private void outputPrefix(char[] prefixChars, StringBuilder line) {
+        for (char prefixChar : prefixChars) {
+            onChar(prefixChar);
+            line.append(prefixChar);
+        }
+    }
 
-    private void onLine(String line) {
+    private void onLine(StringBuilder b) {
+        final String line = b.toString();
         for (CharStreamListener listener : listeners) {
             listener.onLine(line);
         }
+        b.setLength(0);
     }
 
     private void onChar(char c) {
